@@ -1032,8 +1032,6 @@ deebo.methods = function() {
                                 cell.classList.add(symbolCls)
                                 cell.setAttribute("data-symbol", sym)
                             }
-                            // if(useTxt.ancs && useTxt.ancs.length)
-                            //     deebo.methods.giveCellAncOptions(indx, elProp, useTxt.ancs)
                             if(window.innerWidth >= deebo.methods.mouseEventBreak){
                                 cell.addEventListener("mousemove", tblDragEvents.methods.checkItemBorderCursor)
                                 cell.addEventListener("mousemove", tblDragEvents.methods.handleCellSizeAdjust)
@@ -1528,6 +1526,7 @@ deebo.methods = function() {
                 if(deebo.methods.currEditIndex > -1){
                 try{
                     let cfDIdx;
+                    let valueDidChange = true;
                     const valEl = document.getElementsByClassName("edit-input")[0]
                     const forceVal = forceValue ? forceValue : (document.getElementsByClassName("edit-input-opt").length > 0 ? 
                     (e.target.textContent === "-" ? null : e.target.textContent) : null);//select dd
@@ -1545,6 +1544,9 @@ deebo.methods = function() {
                         realProp = deebo.methods.replaceUniSep(col)
                     }
                     const filInp = document.getElementById("filter" + col)
+                    const nwVal = dataTableService.methods.mainData[deebo.methods.currEditIndex][realProp]
+                    if(nwVal === val)
+                        valueDidChange = false;//still do everything, just tell them
                     dataTableService.methods.mainData[deebo.methods.currEditIndex][realProp] = val;
                     const item = dataTableService.methods.mainData[deebo.methods.currEditIndex]
                     if(item){
@@ -1571,11 +1573,12 @@ deebo.methods = function() {
                     if(cell && deebo.methods.listenToCellDraggerMouseMove)
                         cell.classList.add("dragger-cell-focused")
                     deebo.methods.blockEventsInCells()
-                    // if(useTxt.ancs && useTxt.ancs.length)
-                    //     deebo.methods.giveCellAncOptions(deebo.methods.currEditIndex, col, useTxt.ancs)
                     if((e && (e.type === "blur" || e.type === "click")) || deebo.methods.isEnterKey(e))
                         deebo.methods.clearValidatedEdit(e)
-                    try{ deeboCellEditHook((deebo.methods.uProvidedPrimKey || deebo.methods.currEditIndex), realProp, val) }catch(e){}
+                    const rowKey = (dataTableService.methods.primaryKey ? dataTableService.methods.mainData[deebo.methods.currEditIndex][dataTableService.methods.primaryKey] : 
+                    deebo.methods.currEditIndex)
+                    const idType = dataTableService.methods.primaryKey ? "key" : "rowId"
+                    try{ deeboCellEditHook(rowKey, realProp, val, valueDidChange, idType) }catch(e){}
                 }catch(e){ }
                 }
             },
@@ -1891,8 +1894,6 @@ deebo.methods = function() {
                     cell.classList.add(symbolCls)
                     cell.setAttribute("data-symbol", sym)
                 }
-                // if(useTxt.ancs && useTxt.ancs.length)
-                //     deebo.methods.giveCellAncOptions(indx, elProp, useTxt.ancs)
                 if(window.innerWidth >= deebo.methods.mouseEventBreak){
                     cell.addEventListener("mousemove", tblDragEvents.methods.checkItemBorderCursor)
                     cell.addEventListener("mousemove", tblDragEvents.methods.handleCellSizeAdjust)
@@ -3175,8 +3176,6 @@ deebo.methods = function() {
                             cell.classList.add(symbolCls)
                             cell.setAttribute("data-symbol", sym)
                         }
-                        // if(useTxt.ancs && useTxt.ancs.length)
-                        //     setTimeout( function() { deebo.methods.giveCellAncOptions(indx, elProp, useTxt.ancs) })
                         if(window.innerWidth >= deebo.methods.mouseEventBreak){
                             cell.addEventListener("mousemove", tblDragEvents.methods.checkItemBorderCursor)
                             cell.addEventListener("mousemove", tblDragEvents.methods.handleCellSizeAdjust)

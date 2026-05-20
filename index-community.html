@@ -5,9 +5,10 @@
     <div id="deeboDataGridSection"></div>
     <script src="./deebo-js-grid-community.js"></script>
     <script>
-        //deebo.methods.setLocalDataSet(data: array of objects)
-        //deebo.methods.setAltRows()
-        //deebo.methods.setDfltRowHgt(rowHght: string)//like 80px - use px
+        deebo.methods.setThemeColors("white", "red")
         deebo.methods.initDeeboData(true)
+        function deeboCellEditHook(key, prop, val, valueDidChange, idType){
+            // console.log(arguments)
+        }
     </script>
 </body>
