@@ -1026,7 +1026,7 @@ deebo.methods = function() {
                                     cell.setAttribute("contenteditable", "true")
                             } else {
                                 cell.innerHTML = useTxt.value
-                                if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                                if(/ \<a/g.test(useTxt.value) || /a\> /g.test(useTxt.value))
                                     cell.style.display = "inline-block"
                             }
                             if(sym){
@@ -1877,7 +1877,7 @@ deebo.methods = function() {
                     cell.classList.add("data-cell-riiight")
                 let useTxt; let sym;
                 cell.style.width = dataTableService.methods.dataFilSrtTracker[prop]?.colWidth || deebo.methods.useColWid
-                cell.style.height = dataTableService.methods.defltRHgt
+                cell.style.height = (cell.parentElement?.getBoundingClientRect().height + "px") || dataTableService.methods.defltRHgt
                 if(dataTableService.methods.dataFilSrtTracker && dataTableService.methods.dataFilSrtTracker[prop]){
                     sym = dataTableService.methods.dataFilSrtTracker[prop]["colCellSymbol"]
                     useTxt = deebo.methods.figureCellText(text, notNum, dataTableService.methods.dataFilSrtTracker[prop]["colCellSymbol"])
@@ -1890,7 +1890,7 @@ deebo.methods = function() {
                         cell.setAttribute("contenteditable", "true")
                 } else {
                     cell.innerHTML = useTxt.value
-                    if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                    if(/ \<a/g.test(useTxt.value) || /a\> /g.test(useTxt.value))
                         cell.style.display = "inline-block"
                 }
                 if(sym){
@@ -3174,7 +3174,7 @@ deebo.methods = function() {
                                 cell.setAttribute("contenteditable", "true")
                         } else {
                             cell.innerHTML = useTxt.value
-                            if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                            if(/ \<a/g.test(useTxt.value) || /a\> /g.test(useTxt.value))
                                 cell.style.display = "inline-block"
                         }
                         if(sym){
