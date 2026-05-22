@@ -1026,6 +1026,8 @@ deebo.methods = function() {
                                     cell.setAttribute("contenteditable", "true")
                             } else {
                                 cell.innerHTML = useTxt.value
+                                if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                                    cell.style.display = "inline-block"
                             }
                             if(sym){
                                 let symbolCls = ["$","€","£","¥","₣","₹"].indexOf(sym) > -1 ? "has-symbol-b" : "has-symbol";
@@ -1888,6 +1890,8 @@ deebo.methods = function() {
                         cell.setAttribute("contenteditable", "true")
                 } else {
                     cell.innerHTML = useTxt.value
+                    if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                        cell.style.display = "inline-block"
                 }
                 if(sym){
                     let symbolCls = ["$","€","£","¥","₣","₹"].indexOf(sym) > -1 ? "has-symbol-b" : "has-symbol";
@@ -3170,6 +3174,8 @@ deebo.methods = function() {
                                 cell.setAttribute("contenteditable", "true")
                         } else {
                             cell.innerHTML = useTxt.value
+                            if(/[A-Za-z0-9][ ]?\<a/g.test(useTxt.value) || /a\>[ ]?[A-Za-z0-9]/g.test(useTxt.value))
+                                cell.style.display = "inline-block"
                         }
                         if(sym){
                             let symbolCls = ["$","€","£","¥","₣","₹"].indexOf(sym) > -1 ? "has-symbol-b" : "has-symbol";
