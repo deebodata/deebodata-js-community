@@ -7,8 +7,8 @@
     <script>
         deebo.methods.setThemeColors("white", "red")
         deebo.methods.setAltRows("#e9e9e9")
-        deebo.methods.setColumnSymbols([{column: "salary", symbol: "$"}])
-        deebo.methods.initDeeboData(true)
+        deebo.methods.setColumnSymbols([{column: "salary", symbol: "$"}, {column: "height", symbol: "px"}, {column: "width", symbol: "px"}])
+        deebo.methods.initDeeboData()
         function deeboCellEditHook(key, prop, val, valueDidChange, idType){
             // console.log(arguments)
         }
