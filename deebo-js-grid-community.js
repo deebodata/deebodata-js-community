@@ -1863,7 +1863,7 @@ deebo.methods = function() {
                     deebo.methods.createSelectRowCheck(row.getAttribute("data-index"))
             },
 
-            updateCell: function(cell, prop, elProp, text, indx) {
+            updateCell: function(cell, prop, elProp, text, indx, horizScrl) {
                 const head = document.getElementById("columnHeader" + elProp)
                 const filInp = document.getElementById("filter" + elProp)
                 const canEdit = deebo.methods.editable && !deebo.methods.shouldValidateEdit(prop, filInp);
@@ -1877,7 +1877,7 @@ deebo.methods = function() {
                     cell.classList.add("data-cell-riiight")
                 let useTxt; let sym;
                 cell.style.width = dataTableService.methods.dataFilSrtTracker[prop]?.colWidth || deebo.methods.useColWid
-                cell.style.height = (cell.parentElement?.getBoundingClientRect().height + "px") || dataTableService.methods.defltRHgt
+                cell.style.height = horizScrl ? (cell.parentElement?.getBoundingClientRect().height + "px") : dataTableService.methods.defltRHgt;
                 if(dataTableService.methods.dataFilSrtTracker && dataTableService.methods.dataFilSrtTracker[prop]){
                     sym = dataTableService.methods.dataFilSrtTracker[prop]["colCellSymbol"]
                     useTxt = deebo.methods.figureCellText(text, notNum, dataTableService.methods.dataFilSrtTracker[prop]["colCellSymbol"])
@@ -1955,7 +1955,7 @@ deebo.methods = function() {
                                         const item = dataTableService.methods.mainData[id]
                                         const eCell = document.querySelector("#" + row.id + " .data-cell-" + elcol)
                                         if(eCell)//already there, make visible
-                                            deebo.methods.updateCell(eCell, col, elcol, item[col], id)
+                                            deebo.methods.updateCell(eCell, col, elcol, item[col], id, true)
                                     }
                                 } else {
                                     if(row.id){
