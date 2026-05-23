@@ -36,8 +36,8 @@ deebo.methods = function() {
             badStrings: ["null", "NULL", "Null", "undefined", "UNDEFINED", "Undefined"],
             themeColor1: "#000035",
             themeColor2: "#e9e9e9",
+            altRowColor: "",
             initJSONProp: "result",
-            cssUrl: "https://d2ffvluimla00s.cloudfront.net/data-grid-enterprise.css",
             initApiMethod: "GET",
             initApiEndpoint: "https://d2ffvluimla00s.cloudfront.net/senators.json",
             localDataSet: [ { name: "Dave", salary: 200000, title: "CEO" }, {name: "Amy", salary: 164000, title: "CIO" }, 
@@ -77,8 +77,21 @@ deebo.methods = function() {
                 deebo.methods.themeColor2 = color2
             },
 
-            setAltRows: function() {
-                deebo.methods.cssUrl = "https://d2ffvluimla00s.cloudfront.net/data-grid-alt.css"
+            setAltRows: function(color) {
+                if(color && typeof color === "string")
+                    deebo.methods.altRowColor = color;
+            },
+
+            setColumnSymbols: function(colSymbols) {//{ column: "width", symbol: "px" }
+                if(colSymbols && typeof colSymbols === "object" && colSymbols.length){
+                    let i = 0;
+                    const len = colSymbols.length
+                    for(i; i < len; i++){
+                        const sym = colSymbols[i]
+                        if(Object.keys(sym).length === 2 && Object.hasOwn(sym, "column") && Object.hasOwn(sym, "symbol") && sym.symbol.length <= 2)
+                            dataTableService.methods.columnSymbols.push(sym)
+                    }
+                }
             },
 
             setLocalDataSet: function(data) {
@@ -915,7 +928,7 @@ deebo.methods = function() {
                         })
                     }
                     lnk.onerror = function() { console.log("The deebodata data grid css failed to load.") }
-                    lnk.href = deebo.methods.cssUrl;
+                    lnk.href = "https://d2ffvluimla00s.cloudfront.net/data-grid-enterprise.css";
                     document.head.appendChild(lnk)
                 } else {
                     console.log("Please add a div whose id = deeboDataGridSection to your html to initiate the deebodata data grid.")
@@ -1599,7 +1612,7 @@ deebo.methods = function() {
 
             handleTheme: function(co1, co2) {
                 try{
-                    let rule1; let rule1a; let rule2; let rule3; let rule5; let rule6;
+                    let rule1; let rule1a; let rule2; let rule3; let rule5; let rule6; let rule7;
                     if(co1){
                         rule1 = ".col-header span, .col-header sup, .col-header button .material-icons," + 
                         ".paginator-half-wid{color: "+co1+"}";
@@ -1617,7 +1630,9 @@ deebo.methods = function() {
                         }
                         rule5 = ".data-cell{ border-bottom: 1px solid "+co2+"; border-right: 1px solid "+co2+"}"
                     }
-                    if(rule1 || rule1a || rule2 || rule3 || rule5 || rule6){
+                    if(deebo.methods.altRowColor)
+                        rule7 = ".data-table-row:not(.data-row-selected):nth-of-type(even){background:"+deebo.methods.altRowColor+"}"
+                    if(rule1 || rule1a || rule2 || rule3 || rule5 || rule6 || rule7){
                         const el = document.createElement("style")
                         document.head.appendChild(el)
                         if(rule1)
@@ -1632,6 +1647,8 @@ deebo.methods = function() {
                             el.sheet.insertRule(rule5)
                         if(rule6)
                             el.sheet.insertRule(rule6)
+                        if(rule7)
+                            el.sheet.insertRule(rule7)
                     }
                 }catch(e){}
             },
@@ -3529,14 +3546,7 @@ dataTableService.methods = function() {
                 number: ["Equals", "Not Equal", "Empty", "Not Empty"],
                 date: ["Equals", "Not on", "Empty", "Not Empty"],
             },
-            columnSymbols: [
-                { column: "width", symbol: "px" },
-                { column: "height", symbol: "px" },
-                { column: "Unit Price", symbol: "$" },
-                { column: "Unit Cost", symbol: "$" },
-                { column: "Total Revenue", symbol: "$" },
-                { column: "Total Cost", symbol: "$" },
-            ],
+            columnSymbols: [],//{ column: "width", symbol: "px" },
 
             getNewTrackerObj: function(colName) {
                 const symbol = dataTableService.methods.columnSymbols.filter( function(c){ return c.column === colName })[0]?.symbol?.substring(0, 2);
