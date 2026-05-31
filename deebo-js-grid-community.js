@@ -12,7 +12,7 @@ deebo.methods = function() {
             deboTotal: "deebo_total",
             dTblHeight: 500,
             desRowHeight: "78",
-            mouseEventBreak: 960,
+            mouseEventBreak: 768,
             uniSep: "Z_",
             verticalRest: 0,
             horizRest: 0,
@@ -66,8 +66,10 @@ deebo.methods = function() {
             },
 
             setDfltRowHgt: function(rowHght) {
-                if(rowHght && typeof rowHght === "string")
+                if(rowHght && typeof rowHght === "string"){
                     dataTableService.methods.defltRHgt = rowHght
+                    dataTableService.methods.defltRHgtNum = parseInt(rowHght.replace(/[ ]?(px|vh|\%)/g, ""));
+                }
             },
 
             setThemeColors: function(color1, color2) {
@@ -420,7 +422,7 @@ deebo.methods = function() {
                 let r = 0
                 let priors = {}
                 const nlen = rbod.children.length
-                const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
+                const defNum = dataTableService.methods.defltRHgtNum
                 for(r; r < nlen; r++){
                     const rn = rbod.children[r]
                     if(rn && rn.classList.contains("num-row")){
@@ -721,8 +723,7 @@ deebo.methods = function() {
 
             setLastRowIndex: function() {
                 const realMax = dataTableService.methods.currFilData.length - 1
-                const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
-                const wannabeMax = (document.getElementsByClassName("data-table-row").length - 1) + Math.floor(Math.max(0, deebo.methods.aboveHgt)/defNum)
+                const wannabeMax = (document.getElementsByClassName("data-table-row").length - 1) + Math.floor(Math.max(0, deebo.methods.aboveHgt)/dataTableService.methods.defltRHgtNum)
                 deebo.methods.lastElRowIndex = Math.min(wannabeMax, realMax)
                 return deebo.methods.lastElRowIndex;
             },
@@ -997,7 +998,7 @@ deebo.methods = function() {
                     }
                     tbody.style.height = deebo.methods.dTblHeight + "px";
                     const maxCols = deebo.methods.setMaxCols(wid)
-                    const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
+                    const defNum = dataTableService.methods.defltRHgtNum
                     const init = Math.max(deebo.methods.dTblHeight/defNum);
                     deebo.methods.useColWid = Math.ceil((tbody.getBoundingClientRect().width-16)/Math.min(colLen, maxCols)) + "px"
                     let canFreeze
@@ -1800,7 +1801,7 @@ deebo.methods = function() {
                 const top = event.target.scrollTop
                 /*horiz scroll*/
                 if(left !== deebo.methods.horizRest)
-                    window.requestAnimationFrame( function() { deebo.methods.execHorizScroll(left) })
+                    deebo.methods.execHorizScroll(left)
                 /*horiz scroll*/
                 /*vert scroll*/
                 if(top === deebo.methods.verticalRest){
@@ -1808,7 +1809,7 @@ deebo.methods = function() {
                         deebo.methods.clearValidatedEdit()
                     return deebo.methods.setRowSelChecksPlacement(); 
                 }
-                window.requestAnimationFrame( function() { deebo.methods.execVertScroll(top) })     
+                deebo.methods.execVertScroll(top)
                 if(top%2 === 0)
                     deebo.methods.clearValidatedEdit()          
             },
@@ -1848,6 +1849,7 @@ deebo.methods = function() {
                     deebo.methods.autoScrollOnEdit = false
                     deebo.methods.setColsOnVisScreen()
                     deebo.methods.setRowSelChecksPlacement()
+                    deebo.methods.setSelectedRowsOnScrollEnd()
                     if(deebo.methods.listenToCellDraggerMouseMove)
                         deebo.methods.settleCellDragger()
                     setTimeout(deebo.methods.cleanUpPossibles)
@@ -2021,6 +2023,24 @@ deebo.methods = function() {
                 }
             },
 
+            setSelectedRowsOnScrollEnd: function() {
+                if(!dataTableService.methods.displayOnlySelRows && dataTableService.methods.currSelRows.length){
+                    let i = 0
+                    const els = document.getElementsByClassName("data-table-row")
+                    const len = els.length
+                    for(i; i < len; i++){
+                        const row = els[i]
+                        if(row){
+                            try{
+                                const indx = parseInt(row.getAttribute("data-index"))
+                                if(dataTableService.methods.currSelRows.indexOf(indx) > -1)
+                                    row.classList.add("data-row-selected")
+                            }catch(e) {}
+                        }
+                    }
+                }
+            },
+
             execVertScrollDown: function(cols, colLen) {
                 let canAdd = 0
                 const vlen = dataTableService.methods.visibleCols.length
@@ -2030,13 +2050,13 @@ deebo.methods = function() {
                 const bbds = bel.getBoundingClientRect()
                 const rTop = (bbds.top - deebo.methods.verticalRest)
                 const gap = dataTableService.methods.tblBot - rTop
-                const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
+                const defNum = dataTableService.methods.defltRHgtNum
                 if(gap > 0){
                     let h = 0
                     let z = deebo.methods.lastElRowIndex + 1
-                    const last = document.getElementById("dataTableRow" + deebo.methods.lastElRowIndex)
-                    if(last && dataTableService.methods.elIsBelowFold(last, dataTableService.methods.tblBot))
-                        return;
+                    // const last = document.getElementById("dataTableRow" + deebo.methods.lastElRowIndex)
+                    // if(last && dataTableService.methods.elIsBelowFold(last, dataTableService.methods.tblBot))
+                    //     return;
                     let bhToSub = 0
                     let ahToAdd = 0
                     const rowsInGap = Math.ceil(gap/defNum)
@@ -2061,9 +2081,6 @@ deebo.methods = function() {
                                     row.setAttribute("data-index", index)
                                     row.style.width = deebo.methods.useRowWid
                                     row.style.height = dataTableService.methods.defltRHgt
-                                    if(!dataTableService.methods.displayOnlySelRows && dataTableService.methods.currSelRows.indexOf(index) > -1)
-                                        row.classList.add("data-row-selected")
-                                    // bel.insertAdjacentElement("beforebegin", row)
                                     frag.appendChild(row)
                                     for(let k = (colLen-1); k >= 0; k--){
                                         const col = cols[k]
@@ -2076,11 +2093,11 @@ deebo.methods = function() {
                         }
                         h += 1
                     }
-                    bel.before(frag)
                     if(bhToSub){
                         deebo.methods.belowHgt -= bhToSub
                         bel.style.height = Math.max(0, deebo.methods.belowHgt) + "px"
                     }
+                    bel.before(frag)
                     if(ahToAdd){
                         deebo.methods.aboveHgt += ahToAdd
                         abv.style.height = Math.max(0, deebo.methods.aboveHgt) + "px"
@@ -2095,7 +2112,7 @@ deebo.methods = function() {
                 const ael = document.getElementById("aboveArea")
                 const blw = document.getElementById("belowArea")
                 const abds = ael.getBoundingClientRect()
-                const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
+                const defNum = dataTableService.methods.defltRHgtNum
                 const rbot = abds.bottom
                 const gap = rbot - dataTableService.methods.tblTop
                 if(gap > 0){
@@ -2126,10 +2143,7 @@ deebo.methods = function() {
                                     row.setAttribute("data-index", index)
                                     row.style.width = deebo.methods.useRowWid
                                     row.style.height = dataTableService.methods.defltRHgt
-                                    if(!dataTableService.methods.displayOnlySelRows && dataTableService.methods.currSelRows.indexOf(index) > -1)
-                                        row.classList.add("data-row-selected")
                                     frag.prepend(row)
-                                    // ael.insertAdjacentElement("afterend", row)
                                     let k = 0
                                     for(k; k < colLen; k++){
                                         const col = cols[k]
@@ -2142,11 +2156,11 @@ deebo.methods = function() {
                         }
                         h += 1
                     }
-                    ael.after(frag)
                     if(ahToSub){
                         deebo.methods.aboveHgt -= ahToSub
                         ael.style.height = Math.max(0, deebo.methods.aboveHgt) + "px"
                     }
+                    ael.after(frag)
                     if(bhToAdd){
                         deebo.methods.belowHgt += bhToAdd
                         blw.style.height = Math.max(0, deebo.methods.belowHgt) + "px"
@@ -2177,7 +2191,6 @@ deebo.methods = function() {
                 if(changes > 0){
                     const dtb = document.getElementById("dataTableBody")
                     const ael = document.getElementById("aboveArea")
-                    const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
                     const els = document.getElementsByClassName("data-table-row")
                     const dtChks = document.getElementById("dataTableChecks")
                     const len = els.length
@@ -2194,7 +2207,7 @@ deebo.methods = function() {
                     const ind1 = parseInt(document.getElementsByClassName("data-table-row")[0]?.getAttribute("data-index"))
                     const item = dataTableService.methods.mainData[(ind1 || -1)]
                     if(item){
-                        deebo.methods.aboveHgt = deebo.methods.findObjIndxInData(item, "currFilData")*defNum
+                        deebo.methods.aboveHgt = deebo.methods.findObjIndxInData(item, "currFilData")*dataTableService.methods.defltRHgtNum
                         ael.style.height = Math.max(0, deebo.methods.aboveHgt) + "px"
                     }
                 }
@@ -2206,7 +2219,6 @@ deebo.methods = function() {
                 if(changes > 0){
                     const dtb = document.getElementById("dataTableBody")
                     const blw = document.getElementById("belowArea")
-                    const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
                     const els = document.getElementsByClassName("data-table-row")
                     const dtChks = document.getElementById("dataTableChecks")
                     const len = els.length
@@ -2225,7 +2237,7 @@ deebo.methods = function() {
                     const indlst = parseInt(nwdtrs[(rlen-1)]?.getAttribute("data-index"))
                     const item = dataTableService.methods.mainData[(indlst || -1)]
                     if(item){
-                        deebo.methods.belowHgt = ((dataTableService.methods.currFilData.length-1)-deebo.methods.findObjIndxInData(item, "currFilData"))*defNum
+                        deebo.methods.belowHgt = ((dataTableService.methods.currFilData.length-1)-deebo.methods.findObjIndxInData(item, "currFilData"))*dataTableService.methods.defltRHgtNum
                         blw.style.height = Math.max(0, deebo.methods.belowHgt) + "px"
                     }
                     deebo.methods.setLastRowIndex()
@@ -3152,7 +3164,7 @@ deebo.methods = function() {
                     try{ document.getElementById("rowNumBody").innerHTML = ""}catch(e){}
                 let n = 0;
                 dataTableService.methods.currMapping = {}
-                const defNum = parseInt(dataTableService.methods.defltRHgt.replace(/[ ]?px/g, ""))
+                const defNum = dataTableService.methods.defltRHgtNum
                 const init = Math.max(deebo.methods.dTblHeight/defNum);
                 const len = dataTableService.methods.currFilData?.length
                 if(!len){//always just add 1
@@ -3539,6 +3551,7 @@ dataTableService.methods = function() {
             currMapping: {},
             mapperWorkerId: 1,
             defltRHgt: "50px",
+            defltRHgtNum: 50,
             currFilData: null,
             isFiltering: false,
             bgSep: "__forbargX",
