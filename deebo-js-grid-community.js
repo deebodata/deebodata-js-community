@@ -1865,7 +1865,6 @@ deebo.methods = function() {
                 if(dtb){
                     deebo.methods.execVertScroll(dtb.scrollTop, true)
                     deebo.methods.execHorizScroll(dtb.scrollLeft)
-                    deebo.methods.handleScrollEnd()
                     deebo.methods.setAllRowsDefHgt()
                 }
             },
@@ -1889,7 +1888,7 @@ deebo.methods = function() {
                     deebo.methods.clearValidatedEdit()    
                 if(deebo.methods.finishScrollTO)
                     clearTimeout(deebo.methods.finishScrollTO)
-                deebo.methods.finishScrollTO = setTimeout(deebo.methods.completeScroll, 150)      
+                deebo.methods.finishScrollTO = setTimeout(deebo.methods.completeScroll, 100)      
             },
 
             execHorizScroll: function(left) {
@@ -2155,7 +2154,7 @@ deebo.methods = function() {
                 }
             },
 
-            applyToDomRows: function(rows, cols, colLen, lastVisInd, dir, defNum, newRows) {
+            applyToDomRows: function(rows, cols, colLen, lastVisInd, dir, defNum, newRows, force) {
                 const abv = document.getElementById("aboveArea")
                 const bel = document.getElementById("belowArea")
                 let domRows = document.getElementsByClassName("data-table-row")
@@ -2218,7 +2217,7 @@ deebo.methods = function() {
                         v++
                     }
                 }
-                deebo.methods.finishApplyingDomRows()
+                deebo.methods.finishApplyingDomRows(force)
             },
 
             execVertScrollDown: function(cols, colLen, currTop, force) {
@@ -2280,7 +2279,7 @@ deebo.methods = function() {
                     }
                     const vlen = dataTableService.methods.visibleCols.length
                     const lastVisInd = cols.indexOf(dataTableService.methods.visibleCols[(vlen-1)]) + 1
-                    deebo.methods.applyToDomRows(rows, cols, colLen, lastVisInd, "down", defNum, repl)
+                    deebo.methods.applyToDomRows(rows, cols, colLen, lastVisInd, "down", defNum, repl, force)
                 }, 0)
             },
 
@@ -2339,16 +2338,18 @@ deebo.methods = function() {
                     }
                     const vlen = dataTableService.methods.visibleCols.length
                     const lastVisInd = cols.indexOf(dataTableService.methods.visibleCols[(vlen-1)]) + 1;
-                    deebo.methods.applyToDomRows(rows, cols, colLen, lastVisInd, "up", defNum, repl)
+                    deebo.methods.applyToDomRows(rows, cols, colLen, lastVisInd, "up", defNum, repl, force)
                 }, 0)
             },
 
-            finishApplyingDomRows: function() {
+            finishApplyingDomRows: function(force) {
                 if(deebo.methods.rowNumbers)
                     deebo.methods.setRowNumbers()
                 deebo.methods.fixRowContainer(0)
                 deebo.methods.setLastRowIndex()
                 deebo.methods.cleanRowChecks()
+                if(force)
+                    deebo.methods.handleScrollEnd()
             },
 
             setDataRowWidthsOnMinimize: function(width) {
