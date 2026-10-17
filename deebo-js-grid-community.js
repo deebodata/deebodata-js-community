@@ -1933,10 +1933,10 @@ deebo.methods = function() {
                     setTimeout(deebo.methods.cleanUpPossibles, 0)
                     setTimeout(deebo.methods.setRowSelChecksPlacement, 0)
                     setTimeout(deebo.methods.blockEventsInCells, 100)
+                    if(deebo.methods.cleanAbvTO)
+                        clearTimeout(deebo.methods.cleanAbvTO)
+                    deebo.methods.cleanAbvTO = setTimeout(deebo.methods.cleanAbove, 5)
                 }, 0)
-                if(deebo.methods.cleanAbvTO)
-                    clearTimeout(deebo.methods.cleanAbvTO)
-                deebo.methods.cleanAbvTO = setTimeout(deebo.methods.cleanAbove, 5)
             },
 
             shouldValidateEdit: function(col, filInp) {
