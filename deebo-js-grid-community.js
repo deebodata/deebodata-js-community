@@ -1934,6 +1934,9 @@ deebo.methods = function() {
                     setTimeout(deebo.methods.setRowSelChecksPlacement, 0)
                     setTimeout(deebo.methods.blockEventsInCells, 100)
                 }, 0)
+                if(deebo.methods.cleanAbvTO)
+                    clearTimeout(deebo.methods.cleanAbvTO)
+                deebo.methods.cleanAbvTO = setTimeout(deebo.methods.cleanAbove, 5)
             },
 
             shouldValidateEdit: function(col, filInp) {
@@ -2343,13 +2346,29 @@ deebo.methods = function() {
             },
 
             finishApplyingDomRows: function(force) {
+                deebo.methods.fixRowContainer(0)
                 if(deebo.methods.rowNumbers)
                     deebo.methods.setRowNumbers()
-                deebo.methods.fixRowContainer(0)
                 deebo.methods.setLastRowIndex()
                 deebo.methods.cleanRowChecks()
-                if(force)
+                if(force && !deebo.methods.isScrolling)
                     deebo.methods.handleScrollEnd()
+            },
+
+            cleanAbvTO: null,
+
+            cleanAbove: function() {
+                const abv = document.getElementById("aboveArea")
+                const head = document.getElementById("dataTableHeaders")
+                const diff = (abv?.getBoundingClientRect().bottom || 0) - (head?.getBoundingClientRect().bottom || 0);
+                if(diff > 0){
+                    deebo.methods.aboveHgt -= diff;
+                    abv.style.height = Math.max(0, deebo.methods.aboveHgt) + "px";
+                    if(deebo.methods.rowNumbers)
+                        deebo.methods.setRowNumbers()
+                    deebo.methods.setLastRowIndex()
+                    deebo.methods.cleanRowChecks()
+                }
             },
 
             setDataRowWidthsOnMinimize: function(width) {
@@ -2589,12 +2608,17 @@ deebo.methods = function() {
                         bel.style.height = deebo.methods.belowHgt + "px"
                     }
                 }
-                setTimeout( function() { 
+                if(deebo.methods.rowIncreaseTO)
+                    clearTimeout(deebo.methods.rowIncreaseTO)
+                deebo.methods.rowIncreaseTO = setTimeout( function() { 
+                    dataTableService.methods.setTableBounds()
                     deebo.methods.setTblScrollListeners(true); 
                     if(deebo.methods.rowNumbers)
                         deebo.methods.setRowNumbers(); 
-                    deebo.methods.tblHgtDiff = 0; })
+                    deebo.methods.tblHgtDiff = 0; }, 10)
             },
+
+            rowIncreaseTO: null,
 
             idCol: function(col) { 
                 if(col && (col === "id" || col === "ID" || col === "Id" || /[Z+z+][I+i+][P+p+][ _\-]?/g.test(col)) || /[S+s+][S+s+][N+n+][ _\-]?/g.test(col))
@@ -4264,6 +4288,13 @@ tblDragEvents.methods = function() {
                     const useHgt= e.pageY - (hdrbds.top+window.scrollY)
                     tblDragEvents.methods.colDragStartFrmHeaderTracker.resized = true
                     deebo.methods.setSingleRowHgt(Math.floor(Math.max(30, useHgt)), document.getElementById("dataTableHeaders"), true)
+                    if(deebo.methods.rowIncreaseTO)
+                        clearTimeout(deebo.methods.rowIncreaseTO)
+                    deebo.methods.rowIncreaseTO = setTimeout( function() { 
+                        dataTableService.methods.setTableBounds()
+                        if(deebo.methods.rowNumbers)
+                            deebo.methods.setRowNumbers(); 
+                    })
                 }catch(err){}
             },
 
