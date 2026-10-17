@@ -2346,9 +2346,9 @@ deebo.methods = function() {
             },
 
             finishApplyingDomRows: function(force) {
-                deebo.methods.fixRowContainer(0)
                 if(deebo.methods.rowNumbers)
                     deebo.methods.setRowNumbers()
+                deebo.methods.fixRowContainer(0)
                 deebo.methods.setLastRowIndex()
                 deebo.methods.cleanRowChecks()
                 if(force && !deebo.methods.isScrolling)
