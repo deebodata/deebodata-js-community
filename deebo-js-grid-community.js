@@ -2346,9 +2346,8 @@ deebo.methods = function() {
             },
 
             finishApplyingDomRows: function(force) {
-                if(deebo.methods.rowNumbers)
-                    deebo.methods.setRowNumbers()
                 deebo.methods.fixRowContainer(0)
+                deebo.methods.setRowSelChecksPlacement()
                 deebo.methods.setLastRowIndex()
                 deebo.methods.cleanRowChecks()
                 if(force && !deebo.methods.isScrolling)
@@ -2364,8 +2363,7 @@ deebo.methods = function() {
                 if(diff > 0){
                     deebo.methods.aboveHgt -= diff;
                     abv.style.height = Math.max(0, deebo.methods.aboveHgt) + "px";
-                    if(deebo.methods.rowNumbers)
-                        deebo.methods.setRowNumbers()
+                    deebo.methods.setRowSelChecksPlacement()
                     deebo.methods.setLastRowIndex()
                     deebo.methods.cleanRowChecks()
                 }
@@ -2613,8 +2611,7 @@ deebo.methods = function() {
                 deebo.methods.rowIncreaseTO = setTimeout( function() { 
                     dataTableService.methods.setTableBounds()
                     deebo.methods.setTblScrollListeners(true); 
-                    if(deebo.methods.rowNumbers)
-                        deebo.methods.setRowNumbers(); 
+                    deebo.methods.setRowSelChecksPlacement(); 
                     deebo.methods.tblHgtDiff = 0; }, 10)
             },
 
