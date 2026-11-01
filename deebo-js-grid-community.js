@@ -1284,6 +1284,20 @@ deebo.methods = function() {
                 return false;
             },
 
+            testCanBeForValidatedCell: function(col, type, text) {
+                if(type === "number"){
+                    if(!isNaN(parseFloat(text)) && !/[A-Za-z]/g.test(text))
+                        return true
+                    return false
+                }
+                if(type === "date"){
+                    if(deebo.methods.isADateObject(text))
+                        return true
+                    return false
+                }
+                return true;
+            },
+
             handleValidatedCellEditFocus: function(cell, type, value) {
                 const rel = document.getElementById("validatedEdit")
                 rel.innerHTML = ""
@@ -1618,6 +1632,9 @@ deebo.methods = function() {
                         realProp = deebo.methods.replaceUniSep(col)
                     }
                     const filInp = document.getElementById("filter" + col)
+                    const dtType =filInp?.getAttribute("type")
+                    if(!deebo.methods.testCanBeForValidatedCell(col, dtType, val))
+                        return;//stops invalid edits
                     const nwVal = dataTableService.methods.mainData[deebo.methods.currEditIndex][realProp]
                     if(nwVal === val)
                         valueDidChange = false;//still do everything, just tell them
@@ -1628,7 +1645,6 @@ deebo.methods = function() {
                         if(cfDIdx > -1)
                             dataTableService.methods.currFilData[cfDIdx][realProp] = val
                     }
-                    const dtType =filInp.getAttribute("type")
                     const notNum = (filInp && (dtType != "number" || /(year|yr|fy)/g.test(realProp.toLocaleLowerCase()))) ? true : false;
                     const useTxt = deebo.methods.figureCellText(val, notNum, dataTableService.methods.dataFilSrtTracker[realProp]?.["colCellSymbol"]);
                     const cell= document.querySelector("#dataTableRow" + deebo.methods.currEditIndex + " .data-cell-" + col)
